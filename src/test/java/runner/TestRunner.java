@@ -11,13 +11,16 @@ import io.cucumber.junit.CucumberOptions;
 @CucumberOptions(strict = true, monochrome = true,
         features = "src/test/resources/features/",
         glue = {"stepdefinitions"},
-        plugin = {"pretty","junit:target/junitreport.xml","json:target/jsonreport.json","html:target/cucumber-reports"}
+        stepNotifications = true,
+        plugin = {
+//        "pretty",
+                "junit:target/junitreport.xml","json:target/jsonreport.json","html:reports/cucumber-reports.html","utilities.CucumberLogger"}
         
 )
 public class TestRunner {
 
     private TestRunner() {
-
+        
     }
 	 
 }

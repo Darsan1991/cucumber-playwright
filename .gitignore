@@ -13,3 +13,8 @@ buildNumber.properties
 .settings/
 .gitignore
 .gitattributes
+.idea
+extent.html
+reports
+src/test/resources/logs
+.DS_Store

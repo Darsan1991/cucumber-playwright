@@ -1,42 +1,29 @@
 package pages;
 
+import attributes.Host;
+import attributes.Inject;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.BrowserType.LaunchOptions;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import io.cucumber.java.en.When;
+import reflection.base.Initializer;
+import reflection.base.LoggerService;
 
-public abstract class BasePage {
+public abstract class BasePage implements Initializer {
 
 	/**
 	 * Page
 	 */
 	
-	protected Browser browser;
-	protected Page page;
+	@Inject public  Page page;
+	@Inject protected LoggerService logger;
 
-	public Page createPlaywrightPageInstance(String browserTypeAsString) {
-		BrowserType browserType = null;
-		switch (browserTypeAsString) {
-		case "Firefox":
-			browserType = Playwright.create().firefox();
-			break;
-		case "Chromium":
-			browserType = Playwright.create().chromium();
-			break;
-		case "Webkit":
-			browserType = Playwright.create().webkit();
-			break;
 
-		}
-		if (browserType == null) {
-			throw new IllegalArgumentException("Could not launch a browser for type " + browserTypeAsString);
-		}
-		browser = browserType.launch(new BrowserType.LaunchOptions().setHeadless(true));
-		page = browser.newPage();
-		return page;
-
+	@Override
+	public void init() {
+		logger.logSuccess("Page initialized:"+this.getClass().getSimpleName() );
 	}
-
 }

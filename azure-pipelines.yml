@@ -9,7 +9,7 @@ steps:
 - script: |
     mvn clean test
   displayName: 'Execute Playwright Java tests'
-
+  
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
