@@ -83,7 +83,7 @@ public class steps extends BaseStep {
         }
     }
 
-    @Given("Navigate to url {string}")
+    @Given("Navigate to url {dataString}")
     public void navigateToUrl(String url) {
 
 

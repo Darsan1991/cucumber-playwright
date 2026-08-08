@@ -8,6 +8,7 @@ import io.cucumber.java.ParameterType;
 import models.HandlerInfo;
 import models.ValidatorInfo;
 import reflection.*;
+import resolvers.DataResolver;
 import utils.StringUtils;
 
 import java.util.Arrays;
@@ -74,17 +75,14 @@ public class CustomParameters extends BaseStep{
     }
 
     @ParameterType("\"[^\"]*\"")
-    public String dataString(String locator) {
-        Locator resultLocator = getLocator(locator);
-
-        return resultLocator.toString();
+    public String dataString(String value) {
+        value = StringUtils.removeQuotes(value);
+        return resultString(value);
     }
 
     @ParameterType("\"[^\"]*\"")
-    public String resultString(String locator) {
-        Locator resultLocator = getLocator(locator);
-
-        return resultLocator.toString();
+    public String resultString(String key) {
+        return DataResolver.resolve(key,"");
     }
     @ParameterType("\"[^\"]*\"")
     public String result(String locator) {

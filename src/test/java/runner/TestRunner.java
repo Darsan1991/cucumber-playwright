@@ -9,7 +9,7 @@ import io.cucumber.junit.CucumberOptions;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(strict = true, monochrome = true,
-        features = "src/test/resources/features/",
+        features = "src/test/resources/features/SampleTest.feature",
         glue = {"stepdefinitions"},
         stepNotifications = true,
         plugin = {
