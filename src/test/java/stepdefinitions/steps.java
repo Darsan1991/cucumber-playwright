@@ -1,10 +1,8 @@
 package stepdefinitions;
 
 
-import attributes.Handler;
-import attributes.Host;
-import attributes.Inject;
-import attributes.Validator;
+import attributes.*;
+import attributes.Comparator;
 import com.microsoft.playwright.*;
 
 import com.microsoft.playwright.options.AriaRole;
@@ -12,6 +10,7 @@ import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.WaitForSelectorState;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -28,6 +27,7 @@ import utils.MethodUtils;
 import utils.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
 import java.util.*;
 
 public class steps extends BaseStep {
@@ -48,7 +48,7 @@ public class steps extends BaseStep {
 
     @Inject
     HandlerService handlerService;
-    
+
     @Inject
     LoggerService logger;
 
@@ -68,13 +68,16 @@ public class steps extends BaseStep {
     @Host
     public static ThreadLocal<Page> threadPage = new ThreadLocal<>();
 
+    @Type(name = "Handlers")
+    @Type(name = "Validators")
+    @Type(name = "Locators")
     @Given("User launched SwagLabs application")
     public void user_launched_swaglabs_application(List<Map<String, String>> table) {
 
 
         try {
             page.navigate("https://innovation-fun-3318.lightning.force.com/");
-  
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -161,26 +164,26 @@ public class steps extends BaseStep {
 //		Optional<Page> page = Services.get(HostService.class).getByType(Thread.currentThread().threadId(), Page.class);
     }
 
-   @Handler 
-    public void fillTextHandler(Locator locator, String value) {
+    @Handler
+    public void fillText(Locator locator, String value) {
         locator.fill(value);
     }
 
     @Handler
-    public boolean textHandler(Locator locator, String value) {
+    public boolean text(Locator locator, String value) {
         locator.fill(value);
         return true;
     }
 
     @Handler
-    public static void dropdownHandler(Locator locator, String value) {
+    public static void dropdown(Locator locator, String value) {
 
         locator.selectOption(value);
 
     }
 
     @Handler
-    public static Locator checkboxHandler(Locator locator, boolean value) {
+    public static Locator checkbox(Locator locator, boolean value) {
         if (value) {
             locator.click();
         } else {
@@ -191,81 +194,98 @@ public class steps extends BaseStep {
     }
 
     @Handler
-    public static boolean radioHandler(Locator locator, String value) {
+    public static boolean radio(Locator locator, String value) {
         locator.selectOption(value);
         return true;
     }
 
     @Handler
-    public static boolean foldHandler(Locator locator, String value) {
+    public static boolean fold(Locator locator, String value) {
         locator.click();
         return true;
     }
 
     @Host
-    public  Locator heading(String val){
+    public Locator heading(String val) {
         return page.getByRole(AriaRole.HEADING, new Page.GetByRoleOptions().setName(val));
     }
+
     @Host
-    public  Locator text(String val){
+    public Locator text(String val) {
         return page.getByText(val);
     }
-    
+
+    @Host
+    public Locator byText(String val) {
+        return page.getByText(val);
+    }
+
+
+    @Host
+    public Locator byRole(String role,String val) {
+        return page.getByRole(AriaRole.valueOf(role.toUpperCase()), new Page.GetByRoleOptions().setName(val));
+    }
 //    
 //    public Locator frame(String val)
 //    {
 //        
 //    }
-    
+
     @Host
-    public static String link = "//a[contains(normalize-space(),'%s')]";
+    public static String link(String name) {
+        return "//a[contains(normalize-space(),'%s')]";
+    }
+
     @Host
     public static String button = "//button[contains(normalize-space(),'%s')]";
+
     @Host
     public Locator input(String label) {
         return page.getByLabel(label)
                 .or(page.getByPlaceholder(label))
-                .or(page.getByRole(AriaRole.TEXTBOX,new Page.GetByRoleOptions().setName(label)));
+                .or(page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName(label)));
     }
-    
+
     @Host
-    public Locator clickableLocator(String label) {
-        return page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName(label)).or(page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName(label))).or(page.locator("//input[@value='%s']".formatted(label)));
+    public Locator clickable(String label) {
+        return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(label)).or(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(label))).or(page.locator("//input[@value='%s']".formatted(label)));
     }
-    
+
     @Host
-    public Locator formLocator(String label) {
+    public Locator form(String label) {
 //        return page.getByRole(AriaRole.FORM,new Page.GetByRoleOptions().setName(label));
         return page.locator("//form[.//*[contains(normalize-space(),'%s')]]".formatted(label));
     }
-    
+
     @Host
     public Locator textBox(String label) {
         return page.getByLabel(label);
     }
 
     @Host
-    public Locator selectLocator(String label) {
+    public Locator select(String label) {
         return page.getByLabel(label).or(page.getByPlaceholder(label));
     }
+
     @Host
     public Locator checkBox(String label) {
-        return page.getByRole(AriaRole.CHECKBOX,new Page.GetByRoleOptions().setName(label));
+        return page.getByRole(AriaRole.CHECKBOX, new Page.GetByRoleOptions().setName(label));
     }
+
     @Validator
-    public static void notVisibleValidator(Locator locator, float wait) {
+    public static void notVisible(Locator locator, float wait) {
         locator.waitFor(new Locator.WaitForOptions().setTimeout(wait * 1000).setState(WaitForSelectorState.HIDDEN));
     }
 
     @Validator
-    public static void visibleValidator(Locator locator, float wait) {
+    public static void visible(Locator locator, float wait) {
         locator.last().waitFor(new Locator.WaitForOptions().setTimeout(wait * 1000).setState(WaitForSelectorState.VISIBLE));
     }
 
 
     @Validator
-    public static void errorTextValidator(Locator locator, float wait) {
-      visibleValidator(locator, wait);
+    public static void errorText(Locator locator, float wait) {
+        visible(locator, wait);
         String val = locator.evaluate("element => window.getComputedStyle(element).color").toString();
 
         List<Integer> color = StringUtils.getAllTextByRegex(val, "\\d+").stream().map(Integer::parseInt).toList();
@@ -273,9 +293,10 @@ public class steps extends BaseStep {
             throw new RuntimeException("Color is not red");
         }
     }
+
     @Validator
     public static void successText(Locator locator, float wait) {
-        visibleValidator(locator, wait);
+        visible(locator, wait);
         String val = locator.evaluate("element => window.getComputedStyle(element).color").toString();
 
         List<Integer> color = StringUtils.getAllTextByRegex(val, "\\d+").stream().map(Integer::parseInt).toList();
@@ -283,19 +304,20 @@ public class steps extends BaseStep {
             throw new RuntimeException("Color is not red");
         }
     }
+
     @Validator
-    public static void hyperLinkValidator(Locator locator, float wait) {
+    public static void hyperLink(Locator locator, float wait) {
         Locator loc = locator.and(locator.page().locator("a").or(locator.page().locator("button")));
-        visibleValidator(loc, wait);
+        visible(loc, wait);
         loc.hover();
         page().waitForTimeout(1000);
         loc.evaluate("element => window.getComputedStyle(element).cursor").toString().equalsIgnoreCase("pointer");
     }
 
     @Validator
-    public static void clickableValidator(Locator locator, float wait) {
+    public static void clickable(Locator locator, float wait) {
 
-        visibleValidator(locator, wait);
+        visible(locator, wait);
         if (!locator.isEnabled()) {
             throw new RuntimeException("Element is not enabled");
         }
@@ -304,7 +326,7 @@ public class steps extends BaseStep {
 
     @Validator
     public static void editable(Locator locator, float wait) {
-        visibleValidator(locator, wait);
+        visible(locator, wait);
         if (!locator.isEditable()) {
             throw new RuntimeException("Element is not editable");
         }
@@ -314,57 +336,89 @@ public class steps extends BaseStep {
 
     @Validator
     public static void notHyperLink(Locator locator, float wait) {
-        notVisibleValidator(locator.and(locator.page().locator("a").or(locator.page().locator("button"))), wait);
+        notVisible(locator.and(locator.page().locator("a").or(locator.page().locator("button"))), wait);
 
+    }
+
+
+    @And("Validate {locator} {locator} using {validator} validator{timeout}{wait}")
+    public void validateUsingValidator(Locator locator,Locator locator2, ValidatorInfo validatorInfo, float timeout, float wait) throws InvocationTargetException, IllegalAccessException {
+        validatorInfo.method.invoke(validatorInfo.object, locator, timeout);
+        page.waitForTimeout(wait * 1000);
+        logger.logSuccess("Validate " + locator + " using " + validatorInfo.method.getName() + " validator");
     }
 
     @And("Validate {locator} using {validator} validator{timeout}{wait}")
     public void validateUsingValidator(Locator locator, ValidatorInfo validatorInfo, float timeout, float wait) throws InvocationTargetException, IllegalAccessException {
         validatorInfo.method.invoke(validatorInfo.object, locator, timeout);
         page.waitForTimeout(wait * 1000);
-        logger.logSuccess("Validate "+locator+" using "+validatorInfo.method.getName()+" validator");
+        logger.logSuccess("Validate " + locator + " using " + validatorInfo.method.getName() + " validator");
     }
 
     @And("Fill {locator}{inside} with {string} using {handler} handler{wait}{optional}")
-    public void fillUsingHandler(Locator locator,Locator parent,String value, HandlerInfo handlerInfo,float wait,boolean optional) throws InvocationTargetException, IllegalAccessException {
+    public void fillUsingHandler(Locator locator, Locator parent, String value, HandlerInfo handlerInfo, float wait, boolean optional) throws InvocationTargetException, IllegalAccessException {
 
-        if (parent!=null) { locator = parent.locator(locator);}
+        if (parent != null) {
+            locator = parent.locator(locator);
+        }
 
         Locator finalLocator = locator;
-        MethodUtils.tryRun(()->{
+        MethodUtils.tryRun(() -> {
             try {
                 handlerInfo.method.invoke(handlerInfo.object, finalLocator, value);
-            } 
-            catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
             page.waitForTimeout(wait * 1000);
-          logger.logSuccess("Fill " + finalLocator + " with " + value + " using " + handlerInfo.method.getName() + " handler");
-      }, !optional);
+            logger.logSuccess("Fill " + finalLocator + " with " + value + " using " + handlerInfo.method.getName() + " handler");
+        }, !optional);
     }
 
     @And("Click on {locator}{inside}{clickType}{timeout}{optional}{wait}")
-    public void clickOn(Locator locator,Locator parent,String type,float timeout,boolean optional,int wait) throws InvocationTargetException, IllegalAccessException {
-        if (parent!=null) { locator = parent.locator(locator);}
+    public void clickOn(Locator locator, Locator parent, String type, float timeout, boolean optional, int wait) throws InvocationTargetException, IllegalAccessException {
+        if (parent != null) {
+            locator = parent.locator(locator);
+        }
         Locator finalLocator = locator;
-        MethodUtils.tryRun(()->{
-            if(type == null || type.trim().equalsIgnoreCase("normal") || type.trim().equalsIgnoreCase("force")) {
-                
-            finalLocator.click(new Locator.ClickOptions().setTimeout(timeout * 1000).setForce(type != null && type.trim().equalsIgnoreCase("force")));
-            }
-            else if(type.trim().equalsIgnoreCase("js")) {
+        MethodUtils.tryRun(() -> {
+            if (type == null || type.trim().equalsIgnoreCase("normal") || type.trim().equalsIgnoreCase("force")) {
+
+                finalLocator.click(new Locator.ClickOptions().setTimeout(timeout * 1000).setForce(type != null && type.trim().equalsIgnoreCase("force")));
+            } else if (type.trim().equalsIgnoreCase("js")) {
                 finalLocator.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(timeout * 1000));
                 finalLocator.evaluate("element => element.click()");
             }
-            
+
             page.waitForTimeout(wait * 1000);
             logger.logSuccess("Click on " + finalLocator);
-        },!optional);
-     
+        }, !optional);
+
+    }
+
+    @And("Click on {locator} {locator}{inside}{clickType}{timeout}{optional}{wait}")
+    public void clickOn(Locator locator,Locator loc, Locator parent, String type, float timeout, boolean optional, int wait) throws InvocationTargetException, IllegalAccessException {
+        if (parent != null) {
+            locator = parent.locator(locator);
+        }
+        Locator finalLocator = locator;
+        MethodUtils.tryRun(() -> {
+            if (type == null || type.trim().equalsIgnoreCase("normal") || type.trim().equalsIgnoreCase("force")) {
+
+                finalLocator.click(new Locator.ClickOptions().setTimeout(timeout * 1000).setForce(type != null && type.trim().equalsIgnoreCase("force")));
+            } else if (type.trim().equalsIgnoreCase("js")) {
+                finalLocator.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(timeout * 1000));
+                finalLocator.evaluate("element => element.click()");
+            }
+
+            page.waitForTimeout(wait * 1000);
+            logger.logSuccess("Click on " + finalLocator);
+        }, !optional);
+
     }
 
     @And("Waiting for {locator}{timeout}{optional}")
-    public void waitingFor(Locator locator,float timeout,boolean optional) {
+    public void waitingFor(Locator locator, float timeout, boolean optional) {
 
-        MethodUtils.tryRun(()->{
+        MethodUtils.tryRun(() -> {
             page.waitForCondition(() -> {
                 try {
                     return locator.count() > 0 && locator.all().stream().anyMatch(Locator::isVisible);
@@ -376,20 +430,19 @@ public class steps extends BaseStep {
     }
 
     @And("Waiting for {locator} to dismiss{timeout}{optional}")
-    public void waitingForDismiss(Locator locator,float timeout,boolean optional) {
-        MethodUtils.tryRun(()->{
-            page.waitForCondition(()-> {
+    public void waitingForDismiss(Locator locator, float timeout, boolean optional) {
+        MethodUtils.tryRun(() -> {
+            page.waitForCondition(() -> {
                 try {
 
-                    return locator.count() == 0 ||locator.all().stream().noneMatch(Locator::isVisible);
-                }
-                catch (Exception e) {
+                    return locator.count() == 0 || locator.all().stream().noneMatch(Locator::isVisible);
+                } catch (Exception e) {
                     return false;
                 }
-            },new Page.WaitForConditionOptions().setTimeout(timeout * 1000));
-        },!optional);
-        
-        logger.logSuccess("Waiting for "+locator);
+            }, new Page.WaitForConditionOptions().setTimeout(timeout * 1000));
+        }, !optional);
+
+        logger.logSuccess("Waiting for " + locator);
     }
 
     @And("Waiting for {loadState} state")
@@ -397,8 +450,12 @@ public class steps extends BaseStep {
         page.waitForLoadState(state);
     }
 
-    @And("Fill the values for fields")
-    public void fillTheValuesForFields(List<Map<String, String>> table) {
+
+    @Type(name = "Validators")
+    @Type(name = "Handlers")
+    @Type(name = "Locators")
+    @And("Fill the values for fields {result}")
+    public void fillTheValuesForFields(String result, List<Map<String, String>> table) {
         table.forEach(map -> {
             Locator locator = CustomParameters.getLocator(map.get("Field"));
             Optional<HandlerInfo> handler = handlerService.get(map.get("Handler"));
@@ -406,13 +463,74 @@ public class steps extends BaseStep {
 
             HandlerInfo handlerInfo = handler.get();
             try {
-                handlerInfo.method.invoke(handlerInfo.object,locator,value);
+                handlerInfo.method.invoke(handlerInfo.object, locator, value);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             } catch (InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         });
+    }
+
+    @Type(name = "Comparators")
+    @Type(name = "Locators")
+    @And("Validate using comparators")
+    public void validateComparators( List<Map<String, String>> table) {
+        table.forEach(map -> {
+            Locator locator = CustomParameters.getLocator(map.get("Field"));
+            Optional<HandlerInfo> handler = handlerService.get(map.get("Handler"));
+            String value = map.get("Value");
+
+            HandlerInfo handlerInfo = handler.get();
+            try {
+                handlerInfo.method.invoke(handlerInfo.object, locator, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    @And("Store the result string {resultString}")
+    public void storeResultStringData(String data) {
+        page.pause();
+    }
+
+    @And("Store the data {dataString}")
+    public void storeData(String data) {
+        page.pause();
+    }
+
+    @And("Pause the process")
+    public void pauseTheProcess() {
+        page.pause();
+    }
+
+    @Function
+    public String hello(String name,String test) {
+        return "hello";
+    }
+
+    @Function
+    public String dateFromToday(String days) {
+        return LocalDate.now().plusDays(Integer.parseInt(days)).toString();
+    }
+
+    @Function
+    public String test() {
+        return "hello";
+    }
+    @Comparator
+    public boolean isEqual(String name,String test) {
+        return name.equals(test);
+    }
+
+    @Type(name = "Locators")
+    @Type(name = "Handlers")
+    @And("Fill the values for fields")
+    public void fillTheValuesForFields() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
     }
 }

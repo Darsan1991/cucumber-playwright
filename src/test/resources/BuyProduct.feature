@@ -1,10 +1,13 @@
 Feature: Buy Product
 
+
   Background:
+    
+    And Click on "clickable::Get Started Now"
 
     And cache basic project details for "Hello world"
     And cache basic project details for "" with:
-      |  |
+      | |
       |  |
       |  |
 

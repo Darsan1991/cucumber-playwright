@@ -1,0 +1,178 @@
+mappingInfos:
+  - identifier: attributes.Host
+    successTextAttributes: VALID_LOCATOR
+    nameMatch: "(?i)^$1(Locator)?$"
+    cucumberParameter: locator
+    parameterStrict: true
+    autoCompleteConfig:
+      icon: locator
+      type: Locator
+      wordStyle: TitleCase
+
+  - identifier: attributes.Host
+    successTextAttributes: VALID_LOCATOR
+    contentRegex: 'inside\s+"([^:"]+)(?:::(.*))?'
+    nameMatch: "(?i)^$1(Locator)?$"
+    cucumberParameter: inside
+    parameterStrict: true
+    autoCompleteConfig:
+      icon: locator
+      type: Locator
+      wordStyle: TitleCase
+
+  - identifier: attributes.Validator
+    successTextAttributes: VALID_VALIDATOR
+    cucumberParameter: validator
+    nameMatch: "(?i)^$1(Validator)?$"
+    autoCompleteConfig:
+      icon: validator
+
+
+  - identifier: attributes.Function
+    successTextAttributes: VALID_FUNCTION
+    contentRegex: '^"=([a-zA-Z_]\w*)\((.*)\)"$'
+    nameMatch: "(?i)^$1(Function)?$"
+    cucumberParameter: resultString
+    parameterStrict: true
+    parameterDivider: ","
+    errorOnMissing: false
+
+  - identifier: attributes.Handler
+    successTextAttributes: VALID_HANDLER
+    cucumberParameter: handler
+    nameMatch: "(?i)^$1(Handler)?$"
+    autoCompleteConfig:
+      icon: handler
+
+  - identifier: attributes.Function
+    successTextAttributes: VALID_FUNCTION
+    contentRegex: '^"=([a-zA-Z_]\w*)\((.*)\)"$'
+    nameMatch: "(?i)^$1(Function)?$"
+    cucumberParameter: result
+    parameterStrict: true
+    parameterDivider: ","
+
+  - identifier: attributes.Function
+    successTextAttributes: VALID_FUNCTION
+    allContentRegex: '^=(.*)$'
+    contentRegex: '([a-zA-Z_]\w*)\((.*)\)'
+    nameMatch: "(?i)^$1(Function)?$"
+    parameterStrict: true
+    parameterDivider: ","
+    target: cell
+
+  - identifier: attributes.Validator
+    successTextAttributes: VALID_VALIDATOR
+    allContentRegex: '\[\[(.+?)\]\]'
+    contentRegex: '([^:\]]+)(?:::(.*?))?'
+    nameMatch: "(?i)^$1(Validator)?$"
+    target: cell
+    divider: '&&'
+    validations:
+      - identifier: attributes.Type
+        field: name
+        value: Validators
+    
+    autoCompleteConfig:
+        icon: validator
+        
+  - identifier: attributes.Comparator
+    successTextAttributes: VALID_VALIDATOR
+    allContentRegex: '\[\[(.*)\]\]'
+    contentRegex: '([^:\]]+)(?:::(.*?))?'
+    nameMatch: "(?i)^$1(Comparator)?$"
+    target: cell
+    validations:
+      - identifier: attributes.Type
+        field: name
+        value: Comparators
+        
+    autoCompleteConfig:
+        icon: validator
+
+  - identifier: attributes.Handler
+    successTextAttributes: VALID_HANDLER
+    allContentRegex: '\(\((.*)?\)\)'
+    contentRegex: '([^:\]]+)(?:::(.*?))?'
+    nameMatch: "(?i)^$1(Handler)?$"
+    target: cell
+    validations:
+      - identifier: attributes.Type
+        field: name
+        value: Handlers
+        
+    autoCompleteConfig:
+        icon: handler
+
+  - identifier: attributes.Host
+    successTextAttributes: VALID_LOCATOR
+    allContentRegex: '^\$(.*?)$'
+    contentRegex: '^(.*?)(?:::(.+))?$'
+    nameMatch: "(?i)^$1(Locator)?$"
+    target: cell
+    parameterStrict: true
+    validations:
+      - identifier: attributes.Type
+        field: name
+        value: Locators
+    autoCompleteConfig:
+        icon: locator
+        type: Locator
+        wordStyle: TitleCase
+
+  - successTextAttributes: VALID_DATA
+    contentRegex: '"(.+?)"'
+    target: step
+    cucumberParameter: dataString
+    type: data
+    nameMatch: "(?i)^$1$"
+    errorOnMissing: true
+
+
+  - successTextAttributes: VALID_DATA
+    contentRegex: '\{\{(.+?)\}\}'
+    target: step
+    cucumberParameter: locator
+    type: data
+    nameMatch: "(?i)^$1$"
+    errorOnMissing: false
+    autoCompleteConfig:
+      icon: locator
+      type: Locator
+
+
+  - successTextAttributes: VALID_DATA
+    contentRegex: '\{\{(.*)\}\}'
+    target: step
+    cucumberParameter: resultString
+    type: data
+    nameMatch: "(?i)^$1$"
+    errorOnMissing: false
+
+  - successTextAttributes: VALID_DATA
+    allContentRegex: '\{\{(.+?)\}\}'
+    contentRegex: '(.*)'
+    target: cell
+    type: data
+    nameMatch: "(?i)^$1$"
+    errorOnMissing: false
+
+
+colors:
+  - name: VALID_HANDLER
+    color:
+      r: 120
+      g: 120
+      b: 30
+    
+  - name: VALID_FUNCTION
+    color:
+      r: 180
+      g: 180
+      b: 30
+    
+  - name: VALID_VALIDATOR
+    color:
+      r: 200
+      g: 120
+      b: 30

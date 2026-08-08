@@ -1,14 +1,7 @@
 package pages;
 
-import attributes.Host;
 import attributes.Inject;
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserContext;
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.BrowserType.LaunchOptions;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
-import io.cucumber.java.en.When;
 import reflection.base.Initializer;
 import reflection.base.LoggerService;
 

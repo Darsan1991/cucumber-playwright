@@ -3,8 +3,6 @@ package pages;
 import attributes.Execute;
 import attributes.Host;
 import attributes.Inject;
-import com.microsoft.playwright.Locator;
-import io.cucumber.java.sl.In;
 import org.junit.Assert;
 
 import com.microsoft.playwright.Page;

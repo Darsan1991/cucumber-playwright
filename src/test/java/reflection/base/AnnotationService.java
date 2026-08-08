@@ -2,7 +2,6 @@ package reflection.base;
 
 import attributes.Host;
 import attributes.Inject;
-import models.ThreadLocal;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;

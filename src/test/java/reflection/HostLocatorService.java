@@ -7,7 +7,6 @@ import com.microsoft.playwright.FrameLocator;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import reflection.base.AnnotationService;
-import reflection.base.LoggerService;
 
 @Service
 public class HostLocatorService extends AnnotationService<Host> {

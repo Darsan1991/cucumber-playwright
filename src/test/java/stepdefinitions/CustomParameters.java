@@ -73,6 +73,24 @@ public class CustomParameters extends BaseStep{
         return resultLocator;
     }
 
+    @ParameterType("\"[^\"]*\"")
+    public String dataString(String locator) {
+        Locator resultLocator = getLocator(locator);
+
+        return resultLocator.toString();
+    }
+
+    @ParameterType("\"[^\"]*\"")
+    public String resultString(String locator) {
+        Locator resultLocator = getLocator(locator);
+
+        return resultLocator.toString();
+    }
+    @ParameterType("\"[^\"]*\"")
+    public String result(String locator) {
+       return "";
+    }
+
     public static Locator getLocator(String locator) {
         locator = StringUtils.removeQuotes(locator);
         List<Locator> items = Arrays.stream(locator.split("->")).map(String::trim)
