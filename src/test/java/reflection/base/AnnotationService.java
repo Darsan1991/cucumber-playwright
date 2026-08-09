@@ -71,7 +71,7 @@ public abstract class AnnotationService<T extends Annotation> implements Initial
 
 
     protected String[] packages() {
-        return new String[]{"pages", "stepdefinitions"};
+        return new String[]{"pages", "stepdefinitions","utilities"};
     }
 
     public void init() {

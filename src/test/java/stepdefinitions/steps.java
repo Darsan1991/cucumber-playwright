@@ -23,6 +23,7 @@ import pages.*;
 import reflection.*;
 import reflection.base.LoggerService;
 import utils.ColorUtils;
+import utils.LocatorUtils;
 import utils.MethodUtils;
 import utils.StringUtils;
 
@@ -222,7 +223,7 @@ public class steps extends BaseStep {
 
 
     @Host
-    public Locator byRole(String role,String val) {
+    public Locator byRole(String role, String val) {
         return page.getByRole(AriaRole.valueOf(role.toUpperCase()), new Page.GetByRoleOptions().setName(val));
     }
 //    
@@ -273,19 +274,21 @@ public class steps extends BaseStep {
     }
 
     @Validator
-    public static void notVisible(Locator locator, float wait) {
-        locator.waitFor(new Locator.WaitForOptions().setTimeout(wait * 1000).setState(WaitForSelectorState.HIDDEN));
+    public static void notVisible(Locator locator) {
+        locator.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
     }
 
     @Validator
-    public static void visible(Locator locator, float wait) {
-        locator.last().waitFor(new Locator.WaitForOptions().setTimeout(wait * 1000).setState(WaitForSelectorState.VISIBLE));
+    public static void visible(Locator locator) {
+        locator.last().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
     }
+    
+    
 
 
     @Validator
-    public static void errorText(Locator locator, float wait) {
-        visible(locator, wait);
+    public static void errorText(Locator locator) {
+        visible(locator);
         String val = locator.evaluate("element => window.getComputedStyle(element).color").toString();
 
         List<Integer> color = StringUtils.getAllTextByRegex(val, "\\d+").stream().map(Integer::parseInt).toList();
@@ -295,8 +298,8 @@ public class steps extends BaseStep {
     }
 
     @Validator
-    public static void successText(Locator locator, float wait) {
-        visible(locator, wait);
+    public static void successText(Locator locator) {
+        visible(locator);
         String val = locator.evaluate("element => window.getComputedStyle(element).color").toString();
 
         List<Integer> color = StringUtils.getAllTextByRegex(val, "\\d+").stream().map(Integer::parseInt).toList();
@@ -306,18 +309,18 @@ public class steps extends BaseStep {
     }
 
     @Validator
-    public static void hyperLink(Locator locator, float wait) {
+    public static void hyperLink(Locator locator) {
         Locator loc = locator.and(locator.page().locator("a").or(locator.page().locator("button")));
-        visible(loc, wait);
+        visible(loc);
         loc.hover();
         page().waitForTimeout(1000);
         loc.evaluate("element => window.getComputedStyle(element).cursor").toString().equalsIgnoreCase("pointer");
     }
 
     @Validator
-    public static void clickable(Locator locator, float wait) {
+    public static void clickable(Locator locator) {
 
-        visible(locator, wait);
+        visible(locator);
         if (!locator.isEnabled()) {
             throw new RuntimeException("Element is not enabled");
         }
@@ -325,28 +328,34 @@ public class steps extends BaseStep {
     }
 
     @Validator
-    public static void editable(Locator locator, float wait) {
-        visible(locator, wait);
+    public static void editable(Locator locator) {
+        visible(locator);
         if (!locator.isEditable()) {
             throw new RuntimeException("Element is not editable");
         }
 //        locator.click();
     }
+    
+    @Validator
+    public static void inputValue(Locator locator, String value) {
+        locator = !LocatorUtils.tag(locator).equalsIgnoreCase("input") ? locator.locator("//input"):locator;
+        assert locator.inputValue().equals(value);
+    }
 
 
     @Validator
-    public static void notHyperLink(Locator locator, float wait) {
-        notVisible(locator.and(locator.page().locator("a").or(locator.page().locator("button"))), wait);
+    public static void notHyperLink(Locator locator) {
+        notVisible(locator.and(locator.page().locator("a").or(locator.page().locator("button"))));
 
     }
 
-
-    @And("Validate {locator} {locator} using {validator} validator{timeout}{wait}")
-    public void validateUsingValidator(Locator locator,Locator locator2, ValidatorInfo validatorInfo, float timeout, float wait) throws InvocationTargetException, IllegalAccessException {
-        validatorInfo.method.invoke(validatorInfo.object, locator, timeout);
+    @And("Validate {locator} with value {resultString} using {validator} validator{timeout}{wait}")
+    public void validateUsingValidator(Locator locator,String value, ValidatorInfo validatorInfo, float timeout, float wait) throws InvocationTargetException, IllegalAccessException {
+        validatorInfo.method.invoke(validatorInfo.object, locator, value);
         page.waitForTimeout(wait * 1000);
         logger.logSuccess("Validate " + locator + " using " + validatorInfo.method.getName() + " validator");
     }
+
 
     @And("Validate {locator} using {validator} validator{timeout}{wait}")
     public void validateUsingValidator(Locator locator, ValidatorInfo validatorInfo, float timeout, float wait) throws InvocationTargetException, IllegalAccessException {
@@ -395,7 +404,7 @@ public class steps extends BaseStep {
     }
 
     @And("Click on {locator} {locator}{inside}{clickType}{timeout}{optional}{wait}")
-    public void clickOn(Locator locator,Locator loc, Locator parent, String type, float timeout, boolean optional, int wait) throws InvocationTargetException, IllegalAccessException {
+    public void clickOn(Locator locator, Locator loc, Locator parent, String type, float timeout, boolean optional, int wait) throws InvocationTargetException, IllegalAccessException {
         if (parent != null) {
             locator = parent.locator(locator);
         }
@@ -475,7 +484,7 @@ public class steps extends BaseStep {
     @Type(name = "Comparators")
     @Type(name = "Locators")
     @And("Validate using comparators")
-    public void validateComparators( List<Map<String, String>> table) {
+    public void validateComparators(List<Map<String, String>> table) {
         table.forEach(map -> {
             Locator locator = CustomParameters.getLocator(map.get("Field"));
             Optional<HandlerInfo> handler = handlerService.get(map.get("Handler"));
@@ -508,7 +517,7 @@ public class steps extends BaseStep {
     }
 
     @Function
-    public String hello(String name,String test) {
+    public String hello(String name, String test) {
         return "hello";
     }
 
@@ -521,8 +530,9 @@ public class steps extends BaseStep {
     public String test() {
         return "hello";
     }
+
     @Comparator
-    public boolean isEqual(String name,String test) {
+    public boolean isEqual(String name, String test) {
         return name.equals(test);
     }
 
@@ -532,5 +542,16 @@ public class steps extends BaseStep {
     public void fillTheValuesForFields() {
         // Write code here that turns the phrase above into concrete actions
         throw new PendingException();
+    }
+
+    @And("Set {locator} value {resultString} using {handler} handler")
+    public void setValueUsingHandler(Locator locator, String value, HandlerInfo handler) throws InvocationTargetException, IllegalAccessException {
+        handler.method.invoke(handler.object, locator, value);
+    }
+
+    @And("Wait {int} seconds")
+    public void waitSeconds(int seconds) {
+        // Write code here that turns the phrase above into concrete actions
+        page.waitForTimeout(seconds * 1000);
     }
 }

@@ -29,6 +29,8 @@ public class BaseStep {
         
         browser = browserType.launch(new BrowserType.LaunchOptions().setHeadless(false));
 
-        return browser.newPage();
+        var newPage = browser.newPage();
+        newPage.setViewportSize(1920,1080);
+        return newPage;
     }
 }

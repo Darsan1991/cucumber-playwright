@@ -9,6 +9,7 @@ import models.HandlerInfo;
 import models.ValidatorInfo;
 import reflection.*;
 import resolvers.DataResolver;
+import resolvers.FunctionResolver;
 import utils.StringUtils;
 
 import java.util.Arrays;
@@ -77,16 +78,17 @@ public class CustomParameters extends BaseStep{
     @ParameterType("\"[^\"]*\"")
     public String dataString(String value) {
         value = StringUtils.removeQuotes(value);
-        return resultString(value);
+        return DataResolver.resolveString(value,false);
     }
 
     @ParameterType("\"[^\"]*\"")
     public String resultString(String key) {
-        return DataResolver.resolve(key,"");
+        return result(key);
     }
     @ParameterType("\"[^\"]*\"")
-    public String result(String locator) {
-       return "";
+    public String result(String value) {
+        
+       return FunctionResolver.resolve(value);
     }
 
     public static Locator getLocator(String locator) {
@@ -191,6 +193,7 @@ public class CustomParameters extends BaseStep{
 
     @ParameterType(".*")
     public HandlerInfo handler(String name) {
+        
         name = name.trim();
         name = StringUtils.removeQuotes(name);
         String[] items = Arrays.stream(name.split("::")).toArray(String[]::new);
