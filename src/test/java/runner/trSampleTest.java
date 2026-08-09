@@ -12,7 +12,7 @@ import io.cucumber.junit.CucumberOptions;
         features = "src/test/resources/features/SampleTest.feature",
         glue = {"stepdefinitions"},
         stepNotifications = true,
-        tags = "@Validator",
+        tags = "@UseTable",
         plugin = {
 //        "pretty",
                 "junit:target/junitreport.xml","json:target/jsonreport.json","html:reports/cucumber-reports.html","utilities.CucumberLogger"}

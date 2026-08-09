@@ -22,6 +22,7 @@ import models.ValidatorInfo;
 import pages.*;
 import reflection.*;
 import reflection.base.LoggerService;
+import resolvers.LocatorResolver;
 import utils.ColorUtils;
 import utils.LocatorUtils;
 import utils.MethodUtils;
@@ -184,14 +185,15 @@ public class steps extends BaseStep {
     }
 
     @Handler
-    public static Locator checkbox(Locator locator, boolean value) {
+    public static void checkbox(Locator locator, String valueString) {
+        var value = valueString.equals("true");
+        
         if (value) {
             locator.click();
         } else {
             locator.uncheck();
         }
 
-        return null;
     }
 
     @Handler
@@ -282,8 +284,6 @@ public class steps extends BaseStep {
     public static void visible(Locator locator) {
         locator.last().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
     }
-    
-    
 
 
     @Validator
@@ -335,10 +335,10 @@ public class steps extends BaseStep {
         }
 //        locator.click();
     }
-    
+
     @Validator
     public static void inputValue(Locator locator, String value) {
-        locator = !LocatorUtils.tag(locator).equalsIgnoreCase("input") ? locator.locator("//input"):locator;
+        locator = !LocatorUtils.tag(locator).equalsIgnoreCase("input") ? locator.locator("//input") : locator;
         assert locator.inputValue().equals(value);
     }
 
@@ -350,7 +350,7 @@ public class steps extends BaseStep {
     }
 
     @And("Validate {locator} with value {resultString} using {validator} validator{timeout}{wait}")
-    public void validateUsingValidator(Locator locator,String value, ValidatorInfo validatorInfo, float timeout, float wait) throws InvocationTargetException, IllegalAccessException {
+    public void validateUsingValidator(Locator locator, String value, ValidatorInfo validatorInfo, float timeout, float wait) throws InvocationTargetException, IllegalAccessException {
         validatorInfo.method.invoke(validatorInfo.object, locator, value);
         page.waitForTimeout(wait * 1000);
         logger.logSuccess("Validate " + locator + " using " + validatorInfo.method.getName() + " validator");
@@ -466,7 +466,7 @@ public class steps extends BaseStep {
     @And("Fill the values for fields {result}")
     public void fillTheValuesForFields(String result, List<Map<String, String>> table) {
         table.forEach(map -> {
-            Locator locator = CustomParameters.getLocator(map.get("Field"));
+            Locator locator = LocatorResolver.resolve(map.get("Field"));
             Optional<HandlerInfo> handler = handlerService.get(map.get("Handler"));
             String value = map.get("Value");
 
@@ -486,7 +486,7 @@ public class steps extends BaseStep {
     @And("Validate using comparators")
     public void validateComparators(List<Map<String, String>> table) {
         table.forEach(map -> {
-            Locator locator = CustomParameters.getLocator(map.get("Field"));
+            Locator locator = LocatorResolver.resolve(map.get("Field"));
             Optional<HandlerInfo> handler = handlerService.get(map.get("Handler"));
             String value = map.get("Value");
 
@@ -539,9 +539,20 @@ public class steps extends BaseStep {
     @Type(name = "Locators")
     @Type(name = "Handlers")
     @And("Fill the values for fields")
-    public void fillTheValuesForFields() {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    public void fillTheValuesForFields(List<Map<String, String>> table) {
+        table.forEach(map -> {
+            var field = LocatorResolver.resolve(map.get("Field"));
+            var value = map.get("Value");
+            var  handlerInfo = handlerService.get(map.get("Handler")).get();
+
+            try {
+                handlerInfo.method.invoke(handlerInfo.object,field, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @And("Set {locator} value {resultString} using {handler} handler")
